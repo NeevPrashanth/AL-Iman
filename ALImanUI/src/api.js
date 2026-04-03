@@ -45,6 +45,13 @@ export const submitTimesheet = (payload, token) => api.post('/timesheets/submit'
 export const decideTimesheet = (payload, token, userId) => api.post('/timesheets/decision', payload, { headers: authHeaders(token, userId) }).then(r => r.data);
 export const fetchTimesheetsForContractor = (contractorId, token) =>
   api.get(`/timesheets/contractor/${contractorId}`, { headers: authHeaders(token) }).then(r => r.data);
+export const fetchApprovedTimesheetDownloads = (token) =>
+  api.get('/doc-downloads/timesheets/approved', { headers: authHeaders(token) }).then(r => r.data);
+export const downloadApprovedTimesheetPdf = (timesheetId, token) =>
+  api.get(`/doc-downloads/timesheets/${timesheetId}/pdf`, {
+    headers: authHeaders(token),
+    responseType: 'blob',
+  });
 export const fetchPendingApprovals = (token) =>
   api.get('/line-manager/timesheets/pending', { headers: authHeaders(token) }).then(r => r.data);
 export const decidePendingTimesheet = (payload, token) =>

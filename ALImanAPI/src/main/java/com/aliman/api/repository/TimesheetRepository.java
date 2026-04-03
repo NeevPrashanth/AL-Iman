@@ -12,4 +12,5 @@ public interface TimesheetRepository extends JpaRepository<Timesheet, Long> {
     Optional<Timesheet> findByContractorAndRelease(Contractor contractor, TimesheetRelease release);
     List<Timesheet> findByContractorId(Long contractorId);
     List<Timesheet> findByStatusOrderByUpdatedAtDesc(Timesheet.Status status);
+    List<Timesheet> findByContractorIdAndStatusOrderByUpdatedAtDesc(Long contractorId, Timesheet.Status status);
 }
