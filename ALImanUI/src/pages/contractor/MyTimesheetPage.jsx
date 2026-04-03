@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchReleases, submitTimesheet } from '../../api';
+import { fetchReleases, fetchTimesheetsForContractor, submitTimesheet } from '../../api';
 
 const createEmptyRow = (comment = '') => ({
   workDate: '',
@@ -9,59 +9,88 @@ const createEmptyRow = (comment = '') => ({
 });
 
 const initialRows = [createEmptyRow('Reminder: fill by Saturday'), createEmptyRow(), createEmptyRow(), createEmptyRow()];
+const getCurrentMonthValue = () => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+};
 
 export default function MyTimesheetPage({ session }) {
   const [rows, setRows] = useState(initialRows);
-  const [month, setMonth] = useState('');
+  const [month, setMonth] = useState(getCurrentMonthValue);
   const [banner, setBanner] = useState('');
   const [error, setError] = useState('');
   const [release, setRelease] = useState(null);
   const [loadingRelease, setLoadingRelease] = useState(false);
+  const [isApprovedMonth, setIsApprovedMonth] = useState(false);
 
   useEffect(() => {
     if (!month) {
       setRelease(null);
       setBanner('');
+      setIsApprovedMonth(false);
+      setRows(initialRows);
       return;
     }
 
     const loadRelease = async () => {
       setLoadingRelease(true);
       setError('');
+      setIsApprovedMonth(false);
       try {
-        const all = await fetchReleases(session.token);
-        const match = all.find(r => r.monthYear === `${month}-01`);
+        const [allReleases, contractorTimesheets] = await Promise.all([
+          fetchReleases(session.token),
+          fetchTimesheetsForContractor(session.userId, session.token),
+        ]);
+
+        const monthKey = `${month}-01`;
+        const match = allReleases.find(r => r.monthYear === monthKey);
+        const existingTimesheet = (contractorTimesheets || []).find((t) => t.release?.monthYear === monthKey);
+        const approved = (existingTimesheet?.status || '').toUpperCase() === 'APPROVED';
+        setIsApprovedMonth(approved);
+
         if (match) {
           setRelease(match);
-          setRows(match.releaseDates?.map(d => ({ ...createEmptyRow(), workDate: d.workDate })) || initialRows);
-          setBanner('Timesheet released - please submit before Monday.');
+          if ((existingTimesheet?.entries || []).length > 0) {
+            setRows(existingTimesheet.entries.map((entry) => ({
+              ...createEmptyRow(),
+              workDate: entry.workDate || '',
+              hoursWorked: entry.hoursWorked ?? 0,
+              entryType: entry.entryType || 'WORK',
+              comment: entry.comment || '',
+            })));
+          } else {
+            setRows(match.releaseDates?.map(d => ({ ...createEmptyRow(), workDate: d.workDate })) || initialRows);
+          }
+          setBanner(approved ? 'This month is approved. Editing is disabled.' : 'Timesheet released - please submit before Monday.');
         } else {
           setRelease(null);
           setBanner('');
           setError('No active release found for selected month.');
+          setRows(initialRows);
         }
       } catch (err) {
         setRelease(null);
         setBanner('');
         setError(err.response?.data?.message || 'No active release found for selected month.');
+        setRows(initialRows);
       } finally {
         setLoadingRelease(false);
       }
     };
 
     loadRelease();
-  }, [month, session.token]);
+  }, [month, session.token, session.userId]);
 
   const updateRow = (i, key, value) => {
+    if (isApprovedMonth) return;
     const copy = [...rows];
     copy[i][key] = value;
     setRows(copy);
   };
 
-  const addRow = () => setRows([...rows, createEmptyRow()]);
-
   const submit = async () => {
     setError('');
+    if (isApprovedMonth) return;
     if (!release?.id) {
       setError('Select a month with an active release before submitting.');
       return;
@@ -95,23 +124,22 @@ export default function MyTimesheetPage({ session }) {
         <tbody>
           {rows.map((row, idx) => (
             <tr key={idx}>
-              <td><input type="date" value={row.workDate} onChange={(e) => updateRow(idx, 'workDate', e.target.value)} /></td>
+              <td><input type="date" value={row.workDate} disabled={isApprovedMonth} onChange={(e) => updateRow(idx, 'workDate', e.target.value)} /></td>
               <td>
-                <select value={row.entryType} onChange={(e) => updateRow(idx, 'entryType', e.target.value)}>
+                <select value={row.entryType} disabled={isApprovedMonth} onChange={(e) => updateRow(idx, 'entryType', e.target.value)}>
                   <option value="WORK">Work</option>
                   <option value="HOLIDAY">Holiday</option>
                   <option value="SICK">Sickness</option>
                 </select>
               </td>
-              <td><input type="number" value={row.hoursWorked} step="0.5" onChange={(e) => updateRow(idx, 'hoursWorked', e.target.value)} /></td>
-              <td><input value={row.comment} onChange={(e) => updateRow(idx, 'comment', e.target.value)} /></td>
+              <td><input type="number" value={row.hoursWorked} disabled={isApprovedMonth} step="0.5" onChange={(e) => updateRow(idx, 'hoursWorked', e.target.value)} /></td>
+              <td><input value={row.comment} disabled={isApprovedMonth} onChange={(e) => updateRow(idx, 'comment', e.target.value)} /></td>
             </tr>
           ))}
         </tbody>
       </table>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10 }}>
-        <button className="btn secondary" type="button" onClick={addRow}>Add row</button>
-        <button className="btn" type="button" onClick={submit} disabled={loadingRelease || !release?.id}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
+        <button className="btn" type="button" onClick={submit} disabled={loadingRelease || !release?.id || isApprovedMonth}>
           {loadingRelease ? 'Checking release...' : 'Submit'}
         </button>
       </div>

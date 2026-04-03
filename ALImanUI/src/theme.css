@@ -22,6 +22,61 @@ body {
   color: var(--text);
 }
 
+.login-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #0f2b5b 0%, #0a1d3e 70%);
+  padding: 20px;
+}
+
+.login-card {
+  width: min(100%, 420px);
+}
+
+.login-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.login-logo {
+  height: 48px;
+  width: auto;
+}
+
+.login-title {
+  font-weight: 800;
+  font-size: 20px;
+}
+
+.login-subtitle {
+  color: #5f6b7a;
+}
+
+.login-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.login-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #e3e7ed;
+  margin-bottom: 16px;
+}
+
+.login-submit {
+  width: 100%;
+}
+
+.login-error {
+  margin-bottom: 12px;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -94,20 +149,6 @@ a {
 .nav-item.active,
 .nav-item:hover {
   background: rgba(255, 255, 255, 0.16);
-}
-
-.sidebar-back {
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  margin-top: 42px;
-  margin-left: 34px;
-  background: rgba(0, 0, 0, 0.26);
-  display: grid;
-  place-items: center;
-  color: #fff;
-  font-size: 28px;
-  font-weight: 600;
 }
 
 .content {
@@ -271,6 +312,11 @@ a {
   opacity: 0.95;
 }
 
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .btn.secondary {
   background: var(--brand-navy);
 }
@@ -414,6 +460,51 @@ td {
   padding: 9px 11px;
   font-size: 16px;
   min-width: 170px;
+}
+
+.release-date-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.release-icon-btn {
+  min-width: 36px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 9px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.release-date-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.release-date-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #eef4ff;
+  border: 1px solid #c9d7f2;
+  color: #133a78;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.release-row-clickable {
+  cursor: pointer;
+}
+
+.release-row-clickable:hover td {
+  background: #f8fbff;
+}
+
+.release-row-clickable.active td {
+  background: #fef0db;
 }
 
 .release-month-input {
@@ -576,6 +667,24 @@ td {
 }
 
 @media (max-width: 760px) {
+  .login-shell {
+    padding: 12px;
+    place-items: start stretch;
+  }
+
+  .login-card {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .login-title {
+    font-size: 18px;
+  }
+
+  .login-logo {
+    height: 42px;
+  }
+
   .sidebar {
     padding: 14px 12px;
   }

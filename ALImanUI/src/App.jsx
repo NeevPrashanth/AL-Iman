@@ -57,7 +57,6 @@ const Menu = ({ role, isCompactMenuOpen, onToggleCompactMenu, onMenuItemClick })
         </>
       )}
     </div>
-    <div className="sidebar-back" aria-hidden="true">&lsaquo;</div>
   </div>
 );
 

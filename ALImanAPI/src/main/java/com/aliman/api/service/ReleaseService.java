@@ -15,7 +15,9 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -38,14 +40,29 @@ public class ReleaseService {
                 ? defaultSaturdays(request.getMonthYear())
                 : request.getWorkDates();
 
-        List<ReleaseDate> releaseDates = new ArrayList<>();
-        for (LocalDate d : dates) {
-            ReleaseDate rd = new ReleaseDate();
-            rd.setRelease(release);
-            rd.setWorkDate(d);
-            releaseDates.add(rd);
+        // Normalize request dates and keep first-seen order to make updates idempotent.
+        Set<LocalDate> requestedDates = new LinkedHashSet<>(dates);
+
+        if (release.getReleaseDates() == null) {
+            release.setReleaseDates(new ArrayList<>());
         }
-        release.setReleaseDates(releaseDates);
+
+        // Remove dates no longer present in the latest request.
+        release.getReleaseDates().removeIf(rd -> !requestedDates.contains(rd.getWorkDate()));
+
+        // Add only missing dates, keep existing ones.
+        Set<LocalDate> existingDates = new LinkedHashSet<>();
+        for (ReleaseDate rd : release.getReleaseDates()) {
+            existingDates.add(rd.getWorkDate());
+        }
+        for (LocalDate d : requestedDates) {
+            if (!existingDates.contains(d)) {
+                ReleaseDate rd = new ReleaseDate();
+                rd.setRelease(release);
+                rd.setWorkDate(d);
+                release.getReleaseDates().add(rd);
+            }
+        }
 
         TimesheetRelease saved = releaseRepository.save(release);
         emailService.sendReleaseNotice(saved);

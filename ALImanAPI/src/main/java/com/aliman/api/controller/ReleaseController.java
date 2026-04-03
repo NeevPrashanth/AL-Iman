@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
+
 @RestController
 @RequestMapping("/api/releases")
 @RequiredArgsConstructor
@@ -22,6 +24,11 @@ public class ReleaseController {
 
     @GetMapping
     public java.util.List<TimesheetRelease> list() {
-        return releaseRepository.findAll();
+        return releaseRepository.findAll().stream()
+                .sorted(
+                        Comparator.comparing((TimesheetRelease r) -> r.getMonthYear().getYear(), Comparator.reverseOrder())
+                                .thenComparing(r -> r.getMonthYear().getMonthValue())
+                )
+                .toList();
     }
 }
