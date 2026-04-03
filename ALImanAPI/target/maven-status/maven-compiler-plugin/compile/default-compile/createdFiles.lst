@@ -39,6 +39,7 @@ com\aliman\api\domain\TimesheetRelease.class
 com\aliman\api\dto\EventRequest.class
 com\aliman\api\AlImanApiApplication.class
 com\aliman\api\config\SecurityConfig.class
+com\aliman\api\controller\LineManagerTimesheetController.class
 com\aliman\api\repository\TimesheetEntryHistoryRepository.class
 com\aliman\api\repository\TimesheetEntryRepository.class
 com\aliman\api\repository\TimesheetRepository.class

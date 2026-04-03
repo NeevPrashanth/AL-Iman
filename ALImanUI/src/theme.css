@@ -933,6 +933,10 @@ td {
     display: none;
   }
 
+  .approvals-page .desktop-table-wrapper {
+    display: block;
+  }
+
   .contractor-cards {
     display: grid;
     gap: 10px;

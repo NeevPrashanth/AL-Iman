@@ -42,6 +42,9 @@ const Menu = ({ role, isCompactMenuOpen, onToggleCompactMenu, onMenuItemClick })
           <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/manager/releases" onClick={onMenuItemClick}>
             Release Dates
           </NavLink>
+          <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/manager/approvals" onClick={onMenuItemClick}>
+            Approvals
+          </NavLink>
           <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/manager/events" onClick={onMenuItemClick}>
             Events
           </NavLink>

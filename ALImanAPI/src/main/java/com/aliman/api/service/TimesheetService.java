@@ -11,12 +11,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 @Service
 @RequiredArgsConstructor
@@ -104,6 +106,10 @@ public class TimesheetService {
 
     @Transactional
     public Timesheet decide(DecisionRequest request, Long approverId) {
+        User approver = userRepository.findById(approverId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        requireLineManager(approver);
+
         Timesheet timesheet = timesheetRepository.findById(request.getTimesheetId())
                 .orElseThrow(() -> new EntityNotFoundException("Timesheet not found"));
         timesheet.getEntries().forEach(entry -> {
@@ -117,15 +123,31 @@ public class TimesheetService {
         if (Boolean.TRUE.equals(request.getApprove())) {
             timesheet.setStatus(Timesheet.Status.APPROVED);
             timesheet.setRejectionReason(null);
+            timesheet.setApprovedAt(OffsetDateTime.now());
         } else {
             timesheet.setStatus(Timesheet.Status.REJECTED);
             timesheet.setRejectionReason(request.getRejectionReason());
+            timesheet.setApprovedAt(null);
         }
-        timesheet.setApprover(new User());
-        timesheet.getApprover().setId(approverId);
+        timesheet.setApprover(approver);
         Timesheet saved = timesheetRepository.save(timesheet);
         emailService.sendDecision(saved);
         return saved;
+    }
+
+    public List<Timesheet> listPendingApprovals(String approverEmail) {
+        User approver = userRepository.findByEmail(approverEmail)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        requireLineManager(approver);
+        return timesheetRepository.findByStatusOrderByUpdatedAtDesc(Timesheet.Status.SUBMITTED);
+    }
+
+    @Transactional
+    public Timesheet decideAsLineManager(DecisionRequest request, String approverEmail) {
+        User approver = userRepository.findByEmail(approverEmail)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        requireLineManager(approver);
+        return decide(request, approver.getId());
     }
 
     public List<Timesheet> listByContractor(Long contractorId) {
@@ -143,5 +165,14 @@ public class TimesheetService {
                 .map(Contractor::getId)
                 .map(timesheetRepository::findByContractorId)
                 .orElseGet(java.util.Collections::emptyList);
+    }
+
+    private void requireLineManager(User user) {
+        if (user == null || user.getRole() == null || user.getRole().getCode() == null) {
+            throw new ResponseStatusException(FORBIDDEN, "Only line managers can approve timesheets");
+        }
+        if (!"LINE_MANAGER".equalsIgnoreCase(user.getRole().getCode())) {
+            throw new ResponseStatusException(FORBIDDEN, "Only line managers can approve timesheets");
+        }
     }
 }

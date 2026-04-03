@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { login } from '../api';
 import logo from '/logo.png';
 
@@ -7,6 +7,12 @@ export default function LoginPage({ onLogin }) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!error || !/reject/i.test(error)) return undefined;
+    const timer = setTimeout(() => setError(''), 3000);
+    return () => clearTimeout(timer);
+  }, [error]);
 
   const submit = async (e) => {
     e.preventDefault();

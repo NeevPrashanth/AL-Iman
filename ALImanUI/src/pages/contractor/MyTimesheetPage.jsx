@@ -51,6 +51,12 @@ export default function MyTimesheetPage({ session }) {
   }, [banner]);
 
   useEffect(() => {
+    if (!error || !/reject/i.test(error)) return undefined;
+    const timer = setTimeout(() => setError(''), 3000);
+    return () => clearTimeout(timer);
+  }, [error]);
+
+  useEffect(() => {
     if (!month) {
       setRelease(null);
       setBanner('');

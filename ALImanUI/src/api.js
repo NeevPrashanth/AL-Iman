@@ -45,6 +45,10 @@ export const submitTimesheet = (payload, token) => api.post('/timesheets/submit'
 export const decideTimesheet = (payload, token, userId) => api.post('/timesheets/decision', payload, { headers: authHeaders(token, userId) }).then(r => r.data);
 export const fetchTimesheetsForContractor = (contractorId, token) =>
   api.get(`/timesheets/contractor/${contractorId}`, { headers: authHeaders(token) }).then(r => r.data);
+export const fetchPendingApprovals = (token) =>
+  api.get('/line-manager/timesheets/pending', { headers: authHeaders(token) }).then(r => r.data);
+export const decidePendingTimesheet = (payload, token) =>
+  api.post('/line-manager/timesheets/decision', payload, { headers: authHeaders(token) }).then(r => r.data);
 
 export const fetchEvents = (token) => api.get('/events', { headers: authHeaders(token) }).then(r => r.data);
 export const createEvent = (payload, token, userId) => api.post('/events', payload, { headers: authHeaders(token, userId) }).then(r => r.data);
