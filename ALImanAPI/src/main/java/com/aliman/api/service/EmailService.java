@@ -18,7 +18,7 @@ public class EmailService {
         msg.setTo("demo@aliman.local");
         msg.setSubject("Timesheet released for " + release.getMonthYear());
         msg.setText("Timesheet window opened. Dates: " + release.getReleaseDates());
-        mailSender.send(msg);
+        //mailSender.send(msg);
     }
 
     public void sendDecision(Timesheet timesheet) {
@@ -26,6 +26,6 @@ public class EmailService {
         msg.setTo(timesheet.getContractor().getEmail());
         msg.setSubject("Timesheet " + timesheet.getStatus());
         msg.setText("Timesheet status: " + timesheet.getStatus() + " Reason: " + timesheet.getRejectionReason());
-        mailSender.send(msg);
+       // mailSender.send(msg);
     }
 }

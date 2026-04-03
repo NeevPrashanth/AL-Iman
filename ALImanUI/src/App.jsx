@@ -143,7 +143,7 @@ function App() {
       />
       <div className="content">
         <div className="app-shell-top">
-          {banner && <div className="banner inline-banner">{banner}</div>}
+          {banner && <div className="banner success inline-banner">{banner}</div>}
           <div ref={userMenuRef}>
             <UserChip />
             {showUserMenu && (
@@ -168,7 +168,7 @@ function App() {
                 <span>Change Password</span>
                 <button onClick={() => setShowPwdModal(false)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer' }}>x</button>
               </div>
-              {pwdError && <div className="banner">{pwdError}</div>}
+              {pwdError && <div className="banner error">{pwdError}</div>}
               <form onSubmit={submitPwd}>
                 <div className="form-group">
                   <label>Current password</label>

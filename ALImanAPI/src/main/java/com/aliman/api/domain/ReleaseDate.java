@@ -17,6 +17,8 @@ public class ReleaseDate {
     @ManyToOne(optional = false)
     @JoinColumn(name = "release_id")
     @com.fasterxml.jackson.annotation.JsonIgnore
+    @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
     private TimesheetRelease release;
 
     @Column(name = "work_date", nullable = false)

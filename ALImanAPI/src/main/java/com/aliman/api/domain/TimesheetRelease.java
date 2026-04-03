@@ -28,5 +28,7 @@ public class TimesheetRelease {
     private OffsetDateTime releasedAt = OffsetDateTime.now();
 
     @OneToMany(mappedBy = "release", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
     private List<ReleaseDate> releaseDates;
 }

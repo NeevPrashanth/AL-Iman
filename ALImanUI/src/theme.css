@@ -336,6 +336,18 @@ td {
   border-radius: 10px;
 }
 
+.banner.success {
+  background: #ecfdf3;
+  border-color: #abefc6;
+  color: #067647;
+}
+
+.banner.error {
+  background: #fef3f2;
+  border-color: #fecdca;
+  color: var(--danger);
+}
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -381,6 +393,110 @@ td {
   justify-content: flex-end;
   gap: 8px;
   margin-top: 14px;
+}
+
+.release-date-fields {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.release-date-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  position: relative;
+}
+
+.release-date-row input {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 9px 11px;
+  font-size: 16px;
+  min-width: 170px;
+}
+
+.release-month-input {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 9px 11px;
+  font-size: 16px;
+  min-width: 170px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.release-calendar {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+
+.release-calendar.popup {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: min(420px, 92vw);
+  margin-bottom: 0;
+  z-index: 30;
+  box-shadow: 0 10px 26px rgba(16, 33, 60, 0.2);
+}
+
+.release-calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  color: #25324a;
+}
+
+.release-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.release-calendar-weekdays {
+  margin-bottom: 6px;
+}
+
+.release-calendar-weekday {
+  text-align: center;
+  font-size: 12px;
+  color: #66758c;
+  font-weight: 700;
+}
+
+.release-calendar-empty {
+  height: 34px;
+}
+
+.release-day-btn {
+  border: 1px solid var(--border);
+  background: #f8fafc;
+  color: #233554;
+  border-radius: 8px;
+  height: 34px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.release-day-btn:hover:not(:disabled) {
+  border-color: #97a6bf;
+}
+
+.release-day-btn.active {
+  background: var(--brand-navy);
+  color: #fff;
+  border-color: var(--brand-navy);
+}
+
+.release-day-btn:disabled {
+  background: #eceff4;
+  color: #9aa5b7;
+  cursor: not-allowed;
 }
 
 .btn.cancel {
@@ -529,5 +645,21 @@ td {
 
   .app-shell-top {
     justify-content: stretch;
+  }
+
+  .release-date-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .release-date-row input {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .release-calendar.popup {
+    position: static;
+    width: 100%;
+    margin-top: 6px;
   }
 }
