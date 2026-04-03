@@ -29,8 +29,8 @@ export default function DashboardHome({ session }) {
   return (
     <div className="page-card">
       <h3>Current Month Overview</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 18 }}>
-        <div className="page-card">
+      <div className="dashboard-overview-grid">
+        <div className="page-card dashboard-overview-panel">
           <h4>Hours by Contractor</h4>
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={contractorHours}>
@@ -42,7 +42,7 @@ export default function DashboardHome({ session }) {
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <div className="page-card">
+        <div className="page-card dashboard-overview-panel">
           <h4>Role Mix</h4>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>

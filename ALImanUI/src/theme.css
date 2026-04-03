@@ -184,6 +184,18 @@ a {
   font-size: 32px;
 }
 
+.dashboard-overview-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 18px;
+  margin-top: 14px;
+}
+
+.dashboard-overview-panel h4 {
+  margin: 0 0 10px;
+  font-size: 22px;
+}
+
 .toolbar {
   display: flex;
   justify-content: space-between;
@@ -369,9 +381,53 @@ td {
   .content {
     padding-top: 12px;
   }
+
+  .dashboard-overview-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 760px) {
+  .sidebar {
+    padding: 18px 16px;
+  }
+
+  .logo-row {
+    margin-bottom: 16px;
+  }
+
+  .logo-row img {
+    height: 40px;
+  }
+
+  .nav-item {
+    font-size: 20px;
+    padding: 9px 10px;
+    margin-bottom: 6px;
+  }
+
+  .content {
+    padding: 14px 12px 24px;
+  }
+
+  .page-card {
+    padding: 16px 14px;
+    border-radius: 14px;
+  }
+
+  .page-card h3 {
+    font-size: 20px;
+  }
+
+  .dashboard-overview-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .dashboard-overview-panel h4 {
+    font-size: 18px;
+  }
+
   .topbar h2 {
     font-size: 32px;
   }
