@@ -517,6 +517,116 @@ td {
   margin-bottom: 10px;
 }
 
+.timesheet-page {
+  padding-bottom: 20px;
+}
+
+.timesheet-banner {
+  margin-bottom: 12px;
+}
+
+.timesheet-month-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.timesheet-month-label {
+  font-weight: 600;
+}
+
+.timesheet-month-input {
+  margin-bottom: 0;
+}
+
+.timesheet-desktop-table {
+  overflow-x: auto;
+}
+
+.timesheet-table th {
+  font-size: 17px;
+}
+
+.timesheet-col-date {
+  width: 22%;
+}
+
+.timesheet-col-type {
+  width: 16%;
+}
+
+.timesheet-col-hours {
+  width: 30%;
+}
+
+.timesheet-col-comment {
+  width: 32%;
+}
+
+.timesheet-input,
+.timesheet-select {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 8px 10px;
+  font-size: 15px;
+  color: #26364d;
+  background: #fff;
+}
+
+.timesheet-date-label {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 8px 10px;
+  font-size: 15px;
+  color: #26364d;
+  background: #f8fafc;
+  font-weight: 600;
+}
+
+.timesheet-mobile-cards {
+  display: none;
+}
+
+.timesheet-mobile-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  background: #fbfcff;
+}
+
+.timesheet-mobile-field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.timesheet-mobile-field:last-child {
+  margin-bottom: 0;
+}
+
+.timesheet-mobile-field label {
+  font-size: 13px;
+  color: #4a5a72;
+  font-weight: 700;
+}
+
+.timesheet-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.timesheet-submit {
+  min-width: 120px;
+}
+
 .release-calendar {
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -763,6 +873,29 @@ td {
 
   .release-date-row input {
     min-width: 0;
+    width: 100%;
+  }
+
+  .timesheet-month-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .timesheet-desktop-table {
+    display: none;
+  }
+
+  .timesheet-mobile-cards {
+    display: grid;
+    gap: 10px;
+  }
+
+  .timesheet-actions {
+    margin-top: 14px;
+  }
+
+  .timesheet-submit {
     width: 100%;
   }
 

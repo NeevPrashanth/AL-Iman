@@ -13,6 +13,14 @@ const getCurrentMonthValue = () => {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 };
+const formatDateLabel = (dateValue) => {
+  if (!dateValue) return '-';
+  const parsed = new Date(`${dateValue}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return dateValue;
+  const dayName = parsed.toLocaleString('en-GB', { weekday: 'short' }).toUpperCase();
+  const dayNumber = String(parsed.getDate()).padStart(2, '0');
+  return `${dayName}-${dayNumber}`;
+};
 
 export default function MyTimesheetPage({ session }) {
   const [rows, setRows] = useState(initialRows);
@@ -22,6 +30,12 @@ export default function MyTimesheetPage({ session }) {
   const [release, setRelease] = useState(null);
   const [loadingRelease, setLoadingRelease] = useState(false);
   const [isApprovedMonth, setIsApprovedMonth] = useState(false);
+
+  useEffect(() => {
+    if (!banner) return undefined;
+    const timer = setTimeout(() => setBanner(''), 3000);
+    return () => clearTimeout(timer);
+  }, [banner]);
 
   useEffect(() => {
     if (!month) {
@@ -109,37 +123,71 @@ export default function MyTimesheetPage({ session }) {
   };
 
   return (
-    <div className="page-card">
+    <div className="page-card timesheet-page">
       <h3>My Timesheet</h3>
-      {banner && <div className="banner">{banner}</div>}
-      {error && <div className="banner">{error}</div>}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
-        <label>Month</label>
-        <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} />
+      {banner && <div className={`banner ${isApprovedMonth ? '' : 'success'} timesheet-banner`}>{banner}</div>}
+      {error && <div className="banner error timesheet-banner">{error}</div>}
+      <div className="timesheet-month-row">
+        <label className="timesheet-month-label">Month</label>
+        <input className="release-month-input timesheet-month-input" type="month" value={month} onChange={(e) => setMonth(e.target.value)} />
       </div>
-      <table>
-        <thead>
-          <tr><th>Date</th><th>Type</th><th>Hours</th><th>Comment</th></tr>
-        </thead>
-        <tbody>
-          {rows.map((row, idx) => (
-            <tr key={idx}>
-              <td><input type="date" value={row.workDate} disabled={isApprovedMonth} onChange={(e) => updateRow(idx, 'workDate', e.target.value)} /></td>
-              <td>
-                <select value={row.entryType} disabled={isApprovedMonth} onChange={(e) => updateRow(idx, 'entryType', e.target.value)}>
-                  <option value="WORK">Work</option>
-                  <option value="HOLIDAY">Holiday</option>
-                  <option value="SICK">Sickness</option>
-                </select>
-              </td>
-              <td><input type="number" value={row.hoursWorked} disabled={isApprovedMonth} step="0.5" onChange={(e) => updateRow(idx, 'hoursWorked', e.target.value)} /></td>
-              <td><input value={row.comment} disabled={isApprovedMonth} onChange={(e) => updateRow(idx, 'comment', e.target.value)} /></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
-        <button className="btn" type="button" onClick={submit} disabled={loadingRelease || !release?.id || isApprovedMonth}>
+      <div className="timesheet-desktop-table">
+        <table className="timesheet-table">
+          <colgroup>
+            <col className="timesheet-col-date" />
+            <col className="timesheet-col-type" />
+            <col className="timesheet-col-hours" />
+            <col className="timesheet-col-comment" />
+          </colgroup>
+          <thead>
+            <tr><th>Date</th><th>Type</th><th>Hours</th><th>Comment</th></tr>
+          </thead>
+          <tbody>
+            {rows.map((row, idx) => (
+              <tr key={idx}>
+                <td><span className="timesheet-date-label">{formatDateLabel(row.workDate)}</span></td>
+                <td>
+                  <select className="timesheet-select" value={row.entryType} disabled={isApprovedMonth} onChange={(e) => updateRow(idx, 'entryType', e.target.value)}>
+                    <option value="WORK">Work</option>
+                    <option value="HOLIDAY">Holiday</option>
+                    <option value="SICK">Sickness</option>
+                  </select>
+                </td>
+                <td><input className="timesheet-input" type="number" value={row.hoursWorked} disabled={isApprovedMonth} step="0.5" onChange={(e) => updateRow(idx, 'hoursWorked', e.target.value)} /></td>
+                <td><input className="timesheet-input" value={row.comment} disabled={isApprovedMonth} onChange={(e) => updateRow(idx, 'comment', e.target.value)} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="timesheet-mobile-cards">
+        {rows.map((row, idx) => (
+          <div key={idx} className="timesheet-mobile-card">
+            <div className="timesheet-mobile-field">
+              <label>Date</label>
+              <span className="timesheet-date-label">{formatDateLabel(row.workDate)}</span>
+            </div>
+            <div className="timesheet-mobile-field">
+              <label>Type</label>
+              <select className="timesheet-select" value={row.entryType} disabled={isApprovedMonth} onChange={(e) => updateRow(idx, 'entryType', e.target.value)}>
+                <option value="WORK">Work</option>
+                <option value="HOLIDAY">Holiday</option>
+                <option value="SICK">Sickness</option>
+              </select>
+            </div>
+            <div className="timesheet-mobile-field">
+              <label>Hours</label>
+              <input className="timesheet-input" type="number" value={row.hoursWorked} disabled={isApprovedMonth} step="0.5" onChange={(e) => updateRow(idx, 'hoursWorked', e.target.value)} />
+            </div>
+            <div className="timesheet-mobile-field">
+              <label>Comment</label>
+              <input className="timesheet-input" value={row.comment} disabled={isApprovedMonth} onChange={(e) => updateRow(idx, 'comment', e.target.value)} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="timesheet-actions">
+        <button className="btn timesheet-submit" type="button" onClick={submit} disabled={loadingRelease || !release?.id || isApprovedMonth}>
           {loadingRelease ? 'Checking release...' : 'Submit'}
         </button>
       </div>
