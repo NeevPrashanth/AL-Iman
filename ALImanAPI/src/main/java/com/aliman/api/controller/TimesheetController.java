@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping("/api/timesheets")
 @RequiredArgsConstructor
@@ -15,8 +17,10 @@ public class TimesheetController {
     private final TimesheetService timesheetService;
 
     @PostMapping("/submit")
-    public Timesheet submit(@Valid @RequestBody TimesheetSubmitRequest request) {
-        return timesheetService.submit(request);
+    public Timesheet submit(@Valid @RequestBody TimesheetSubmitRequest request,
+                            @RequestHeader(value = "X-User-Id", required = false) Long userId,
+                            Principal principal) {
+        return timesheetService.submit(request, userId, principal != null ? principal.getName() : null);
     }
 
     @PostMapping("/decision")

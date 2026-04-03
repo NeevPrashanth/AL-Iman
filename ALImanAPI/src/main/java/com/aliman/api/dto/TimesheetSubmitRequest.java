@@ -7,7 +7,6 @@ import java.util.List;
 
 @Data
 public class TimesheetSubmitRequest {
-    @NotNull
     private Long contractorId;
     @NotNull
     private Long releaseId;
