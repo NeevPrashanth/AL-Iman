@@ -264,6 +264,66 @@ a {
   font-size: 22px;
 }
 
+.events-page {
+  padding-bottom: 20px;
+}
+
+.events-topbar {
+  margin-bottom: 12px;
+}
+
+.events-form {
+  display: grid;
+  gap: 10px;
+}
+
+.events-input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-size: 16px;
+  color: #1f2d43;
+  background: #fff;
+}
+
+.events-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.events-list {
+  margin-top: 16px;
+}
+
+.events-cards {
+  display: none;
+}
+
+.events-row.disabled td {
+  background: #f6f7f9;
+  color: #98a2b3;
+  cursor: not-allowed;
+}
+
+.events-card {
+  transition: background-color 0.15s ease;
+}
+
+.events-card.disabled {
+  background: #f6f7f9;
+  color: #98a2b3;
+  cursor: not-allowed;
+}
+
+.events-card.release-row-clickable:hover {
+  background: #f8fbff;
+}
+
+.events-card.active {
+  background: #fef0db;
+}
+
 .toolbar {
   display: flex;
   justify-content: space-between;
@@ -842,6 +902,20 @@ td {
   .toolbar {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .events-topbar {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .events-topbar h3 {
+    font-size: 26px;
+  }
+
+  .events-cards {
+    display: grid;
+    gap: 10px;
   }
 
   .filters input {

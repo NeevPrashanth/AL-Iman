@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { fetchReleases, fetchTimesheetsForContractor, submitTimesheet } from '../../api';
 
 const createEmptyRow = (comment = '') => ({
@@ -21,15 +21,28 @@ const formatDateLabel = (dateValue) => {
   const dayNumber = String(parsed.getDate()).padStart(2, '0');
   return `${dayName}-${dayNumber}`;
 };
+const normalizeRowForCompare = (row) => ({
+  workDate: row.workDate || '',
+  entryType: row.entryType || 'WORK',
+  hoursWorked: row.hoursWorked === '' ? '' : Number(row.hoursWorked || 0),
+  comment: row.comment || '',
+});
+const normalizeRowsForCompare = (sourceRows) => (sourceRows || []).map(normalizeRowForCompare);
 
 export default function MyTimesheetPage({ session }) {
   const [rows, setRows] = useState(initialRows);
+  const [baselineRows, setBaselineRows] = useState(normalizeRowsForCompare(initialRows));
   const [month, setMonth] = useState(getCurrentMonthValue);
   const [banner, setBanner] = useState('');
   const [error, setError] = useState('');
   const [release, setRelease] = useState(null);
   const [loadingRelease, setLoadingRelease] = useState(false);
   const [isApprovedMonth, setIsApprovedMonth] = useState(false);
+  const isModified = useMemo(() => {
+    const current = JSON.stringify(normalizeRowsForCompare(rows));
+    const baseline = JSON.stringify(baselineRows);
+    return current !== baseline;
+  }, [rows, baselineRows]);
 
   useEffect(() => {
     if (!banner) return undefined;
@@ -43,6 +56,7 @@ export default function MyTimesheetPage({ session }) {
       setBanner('');
       setIsApprovedMonth(false);
       setRows(initialRows);
+      setBaselineRows(normalizeRowsForCompare(initialRows));
       return;
     }
 
@@ -64,29 +78,34 @@ export default function MyTimesheetPage({ session }) {
 
         if (match) {
           setRelease(match);
+          let loadedRows = initialRows;
           if ((existingTimesheet?.entries || []).length > 0) {
-            setRows(existingTimesheet.entries.map((entry) => ({
+            loadedRows = existingTimesheet.entries.map((entry) => ({
               ...createEmptyRow(),
               workDate: entry.workDate || '',
               hoursWorked: entry.hoursWorked ?? 0,
               entryType: entry.entryType || 'WORK',
               comment: entry.comment || '',
-            })));
+            }));
           } else {
-            setRows(match.releaseDates?.map(d => ({ ...createEmptyRow(), workDate: d.workDate })) || initialRows);
+            loadedRows = match.releaseDates?.map(d => ({ ...createEmptyRow(), workDate: d.workDate })) || initialRows;
           }
+          setRows(loadedRows);
+          setBaselineRows(normalizeRowsForCompare(loadedRows));
           setBanner(approved ? 'This month is approved. Editing is disabled.' : 'Timesheet released - please submit before Monday.');
         } else {
           setRelease(null);
           setBanner('');
           setError('No active release found for selected month.');
           setRows(initialRows);
+          setBaselineRows(normalizeRowsForCompare(initialRows));
         }
       } catch (err) {
         setRelease(null);
         setBanner('');
         setError(err.response?.data?.message || 'No active release found for selected month.');
         setRows(initialRows);
+        setBaselineRows(normalizeRowsForCompare(initialRows));
       } finally {
         setLoadingRelease(false);
       }
@@ -117,6 +136,7 @@ export default function MyTimesheetPage({ session }) {
         entries: rows,
       }, session.token);
       setBanner('Submitted for approval.');
+      setBaselineRows(normalizeRowsForCompare(rows));
     } catch (err) {
       setError(err.response?.data?.message || 'Could not submit timesheet.');
     }
@@ -187,7 +207,7 @@ export default function MyTimesheetPage({ session }) {
         ))}
       </div>
       <div className="timesheet-actions">
-        <button className="btn timesheet-submit" type="button" onClick={submit} disabled={loadingRelease || !release?.id || isApprovedMonth}>
+        <button className="btn timesheet-submit" type="button" onClick={submit} disabled={loadingRelease || !release?.id || isApprovedMonth || !isModified}>
           {loadingRelease ? 'Checking release...' : 'Submit'}
         </button>
       </div>
