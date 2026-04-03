@@ -6,46 +6,64 @@ import ContractorDashboard from './pages/ContractorDashboard';
 import { logout as apiLogout, changePassword } from './api';
 import logo from '/logo.png';
 
-const Menu = ({ role }) => (
+const Menu = ({ role, isCompactMenuOpen, onToggleCompactMenu, onMenuItemClick }) => (
   <div className="sidebar">
-    <div className="logo-row">
-      <img src={logo} alt="Al Iman" />
-      <div>
-        <div style={{ fontWeight: 800 }}>Al Iman</div>
-        <div style={{ fontSize: 12, opacity: 0.8 }}>Timesheets</div>
+    <div className="sidebar-top">
+      <div className="logo-row">
+        <img src={logo} alt="Al Iman" />
+        <div>
+          <div style={{ fontWeight: 800 }}>Al Iman</div>
+          <div style={{ fontSize: 12, opacity: 0.8 }}>Timesheets</div>
+        </div>
       </div>
+      <button
+        type="button"
+        className="menu-toggle"
+        aria-label={isCompactMenuOpen ? 'Collapse menu' : 'Expand menu'}
+        aria-expanded={isCompactMenuOpen}
+        onClick={onToggleCompactMenu}
+      >
+        <span className="menu-toggle-lines" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </span>
+      </button>
     </div>
-    {role === 'LINE_MANAGER' ? (
-      <>
-        <NavLink end className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/manager">
-          Dashboard
-        </NavLink>
-        <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/manager/contractors">
-          Contractors
-        </NavLink>
-        <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/manager/releases">
-          Release Dates
-        </NavLink>
-        <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/manager/events">
-          Events
-        </NavLink>
-      </>
-    ) : (
-      <>
-        <NavLink end className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/contractor">
-          My Timesheet
-        </NavLink>
-        <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/contractor/history">
-          History / Downloads
-        </NavLink>
-      </>
-    )}
+    <div className={`sidebar-nav ${isCompactMenuOpen ? 'open' : ''}`}>
+      {role === 'LINE_MANAGER' ? (
+        <>
+          <NavLink end className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/manager" onClick={onMenuItemClick}>
+            Dashboard
+          </NavLink>
+          <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/manager/contractors" onClick={onMenuItemClick}>
+            Contractors
+          </NavLink>
+          <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/manager/releases" onClick={onMenuItemClick}>
+            Release Dates
+          </NavLink>
+          <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/manager/events" onClick={onMenuItemClick}>
+            Events
+          </NavLink>
+        </>
+      ) : (
+        <>
+          <NavLink end className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/contractor" onClick={onMenuItemClick}>
+            My Timesheet
+          </NavLink>
+          <NavLink className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} to="/contractor/history" onClick={onMenuItemClick}>
+            History / Downloads
+          </NavLink>
+        </>
+      )}
+    </div>
     <div className="sidebar-back" aria-hidden="true">&lsaquo;</div>
   </div>
 );
 
 function App() {
   const [session, setSession] = useState(null);
+  const [isCompactMenuOpen, setIsCompactMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef(null);
   const [showPwdModal, setShowPwdModal] = useState(false);
@@ -99,6 +117,11 @@ function App() {
   }
 
   const role = session.role;
+  const collapseMenuOnCompactScreens = () => {
+    if (window.matchMedia('(max-width: 1024px)').matches) {
+      setIsCompactMenuOpen(false);
+    }
+  };
 
   const UserChip = () => (
     <div className="user-chip" onClick={() => setShowUserMenu((s) => !s)}>
@@ -112,7 +135,12 @@ function App() {
 
   return (
     <div className="layout">
-      <Menu role={role} />
+      <Menu
+        role={role}
+        isCompactMenuOpen={isCompactMenuOpen}
+        onToggleCompactMenu={() => setIsCompactMenuOpen((prev) => !prev)}
+        onMenuItemClick={collapseMenuOnCompactScreens}
+      />
       <div className="content">
         <div className="app-shell-top">
           {banner && <div className="banner inline-banner">{banner}</div>}
