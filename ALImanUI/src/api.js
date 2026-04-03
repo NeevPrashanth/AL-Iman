@@ -1,7 +1,23 @@
 import axios from 'axios';
 
+const isLocalHostname = typeof window !== 'undefined'
+  && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+const defaultApiBaseUrl = isLocalHostname
+  ? 'http://localhost:8090/api'
+  : 'https://taapi.neevinfra.uk/api';
+
+const normalizeApiBaseUrl = (rawBaseUrl) => {
+  if (!rawBaseUrl) return rawBaseUrl;
+  const trimmed = rawBaseUrl.replace(/\/+$/, '');
+  if (trimmed.endsWith('/taapi')) {
+    return `${trimmed}/api`;
+  }
+  return trimmed;
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8090/api',
+  baseURL: normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL) || defaultApiBaseUrl,
 });
 
 const authHeaders = (token, userId) => ({
