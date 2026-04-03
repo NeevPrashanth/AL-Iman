@@ -6,6 +6,20 @@ import ContractorDashboard from './pages/ContractorDashboard';
 import { logout as apiLogout, changePassword } from './api';
 import logo from '/logo.png';
 
+const SESSION_STORAGE_KEY = 'aliman.session';
+
+const readStoredSession = () => {
+  if (typeof window === 'undefined') return null;
+  const raw = window.localStorage.getItem(SESSION_STORAGE_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    window.localStorage.removeItem(SESSION_STORAGE_KEY);
+    return null;
+  }
+};
+
 const Menu = ({ role, isCompactMenuOpen, onToggleCompactMenu, onMenuItemClick }) => (
   <div className="sidebar">
     <div className="sidebar-top">
@@ -64,7 +78,7 @@ const Menu = ({ role, isCompactMenuOpen, onToggleCompactMenu, onMenuItemClick })
 );
 
 function App() {
-  const [session, setSession] = useState(null);
+  const [session, setSession] = useState(readStoredSession);
   const [isCompactMenuOpen, setIsCompactMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef(null);
@@ -82,6 +96,15 @@ function App() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (session) {
+      window.localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+      return;
+    }
+    window.localStorage.removeItem(SESSION_STORAGE_KEY);
+  }, [session]);
 
   const handleLogout = async () => {
     await apiLogout();
@@ -115,7 +138,14 @@ function App() {
   };
 
   if (!session) {
-    return <LoginPage onLogin={(s) => { setShowUserMenu(false); setSession(s); }} />;
+    return (
+      <LoginPage
+        onLogin={(s) => {
+          setShowUserMenu(false);
+          setSession(s);
+        }}
+      />
+    );
   }
 
   const role = session.role;
