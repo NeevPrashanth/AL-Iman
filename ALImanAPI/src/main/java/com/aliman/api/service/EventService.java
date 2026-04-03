@@ -24,8 +24,7 @@ public class EventService {
 
     @Transactional
     public Event create(EventRequest request, Long createdBy) {
-        User user = userRepository.findById(createdBy)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        User user = requireUser(createdBy);
         Event e = new Event();
         e.setTitle(request.getTitle());
         e.setDescription(request.getDescription());
@@ -35,5 +34,32 @@ public class EventService {
         e.setEndTime(request.getEndTime());
         e.setCreatedBy(user);
         return eventRepository.save(e);
+    }
+
+    @Transactional
+    public Event update(Long eventId, EventRequest request, Long userId) {
+        requireUser(userId);
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+        event.setTitle(request.getTitle());
+        event.setDescription(request.getDescription());
+        event.setLocation(request.getLocation());
+        event.setEventDate(request.getEventDate());
+        event.setStartTime(request.getStartTime());
+        event.setEndTime(request.getEndTime());
+        return eventRepository.save(event);
+    }
+
+    @Transactional
+    public void delete(Long eventId, Long userId) {
+        requireUser(userId);
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+        eventRepository.delete(event);
+    }
+
+    private User requireUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 }

@@ -48,3 +48,7 @@ export const fetchTimesheetsForContractor = (contractorId, token) =>
 
 export const fetchEvents = (token) => api.get('/events', { headers: authHeaders(token) }).then(r => r.data);
 export const createEvent = (payload, token, userId) => api.post('/events', payload, { headers: authHeaders(token, userId) }).then(r => r.data);
+export const updateEvent = (id, payload, token, userId) =>
+  api.put(`/events/${id}`, payload, { headers: authHeaders(token, userId) }).then(r => r.data);
+export const deleteEvent = (id, token, userId) =>
+  api.delete(`/events/${id}`, { headers: authHeaders(token, userId) }).then(r => r.data);

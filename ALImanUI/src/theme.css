@@ -296,32 +296,35 @@ a {
   margin-top: 16px;
 }
 
-.events-cards {
-  display: none;
+.events-table .events-actions {
+  display: inline-flex;
+  gap: 8px;
 }
 
-.events-row.disabled td {
-  background: #f6f7f9;
-  color: #98a2b3;
-  cursor: not-allowed;
+.events-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: var(--brand-navy);
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
 }
 
-.events-card {
-  transition: background-color 0.15s ease;
+.events-icon-btn:hover {
+  background: #f2f6ff;
 }
 
-.events-card.disabled {
-  background: #f6f7f9;
-  color: #98a2b3;
-  cursor: not-allowed;
+.events-icon-btn.danger {
+  color: #a20f2d;
+  border-color: #f3c9d2;
 }
 
-.events-card.release-row-clickable:hover {
-  background: #f8fbff;
-}
-
-.events-card.active {
-  background: #fef0db;
+.events-icon-btn.danger:hover {
+  background: #fff1f4;
 }
 
 .toolbar {
@@ -913,17 +916,16 @@ td {
     font-size: 26px;
   }
 
-  .events-cards {
-    display: grid;
-    gap: 10px;
-  }
-
   .filters input {
     width: 100%;
   }
 
   .desktop-table-wrapper {
     display: none;
+  }
+
+  .events-page .desktop-table-wrapper {
+    display: block;
   }
 
   .contractor-cards {

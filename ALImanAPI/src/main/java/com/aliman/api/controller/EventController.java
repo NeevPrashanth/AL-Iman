@@ -24,4 +24,16 @@ public class EventController {
     public Event create(@Valid @RequestBody EventRequest request, @RequestHeader("X-User-Id") Long userId) {
         return eventService.create(request, userId);
     }
+
+    @PutMapping("/{id}")
+    public Event update(@PathVariable Long id,
+                        @Valid @RequestBody EventRequest request,
+                        @RequestHeader("X-User-Id") Long userId) {
+        return eventService.update(id, request, userId);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id, @RequestHeader("X-User-Id") Long userId) {
+        eventService.delete(id, userId);
+    }
 }
