@@ -296,6 +296,14 @@ a {
   margin-top: 16px;
 }
 
+.events-cards {
+  display: none;
+}
+
+.events-card.active {
+  background: #fef0db;
+}
+
 .events-table .events-actions {
   display: inline-flex;
   gap: 8px;
@@ -774,6 +782,7 @@ td {
 @media (max-width: 1024px) {
   .layout {
     grid-template-columns: 1fr;
+    align-content: start;
   }
 
   .sidebar {
@@ -924,11 +933,12 @@ td {
     display: none;
   }
 
-  .events-page .desktop-table-wrapper {
-    display: block;
+  .contractor-cards {
+    display: grid;
+    gap: 10px;
   }
 
-  .contractor-cards {
+  .events-cards {
     display: grid;
     gap: 10px;
   }

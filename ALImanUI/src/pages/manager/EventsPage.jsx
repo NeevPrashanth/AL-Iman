@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { createEvent, deleteEvent, fetchEvents, updateEvent } from '../../api';
 
 const emptyForm = {
@@ -20,6 +20,7 @@ export default function EventsPage({ session }) {
   const [pendingDelete, setPendingDelete] = useState(null);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const load = async () => {
     const data = await fetchEvents(session.token);
@@ -29,6 +30,16 @@ export default function EventsPage({ session }) {
   useEffect(() => {
     load();
   }, [session.token]);
+
+  const filtered = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    if (!normalizedSearch) return events;
+    return events.filter((ev) =>
+      [ev.title, ev.location, ev.description, ev.eventDate]
+        .filter(Boolean)
+        .some((field) => String(field).toLowerCase().includes(normalizedSearch))
+    );
+  }, [events, searchTerm]);
 
   const openCreate = () => {
     setMode('create');
@@ -97,13 +108,23 @@ export default function EventsPage({ session }) {
         <h3>Events</h3>
         <button className="btn" type="button" onClick={openCreate}>Add</button>
       </div>
+      <div className="toolbar">
+        <div />
+        <div className="filters">
+          <input
+            placeholder="Search title/date/location"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
       {error && <div className="banner error" style={{ marginBottom: 12 }}>{error}</div>}
       <div className="events-list">
         <div className="desktop-table-wrapper">
           <table className="events-table">
             <thead><tr><th>Date</th><th>Title</th><th>Location</th><th>Actions</th></tr></thead>
             <tbody>
-              {events.map(ev => {
+              {filtered.map(ev => {
                 const selected = selectedEventId === ev.id;
                 return (
                   <tr
@@ -149,6 +170,40 @@ export default function EventsPage({ session }) {
               })}
             </tbody>
           </table>
+        </div>
+        <div className="events-cards">
+          {filtered.map((ev) => (
+            <div className={`card events-card ${selectedEventId === ev.id ? 'active' : ''}`} key={`card-${ev.id}`}>
+              <div className="card-row"><strong>Date:</strong> {ev.eventDate}</div>
+              <div className="card-row"><strong>Title:</strong> {ev.title}</div>
+              <div className="card-row"><strong>Location:</strong> {ev.location || '-'}</div>
+              <div className="card-row"><strong>Description:</strong> {ev.description || '-'}</div>
+              <div className="events-actions" style={{ justifyContent: 'flex-end', marginTop: 8 }}>
+                <button
+                  type="button"
+                  className="events-icon-btn"
+                  title="Edit"
+                  aria-label="Edit event"
+                  onClick={() => openEdit(ev)}
+                >
+                  ✎
+                </button>
+                <button
+                  type="button"
+                  className="events-icon-btn danger"
+                  title="Delete"
+                  aria-label="Delete event"
+                  onClick={() => {
+                    setPendingDelete(ev);
+                    setShowDeleteModal(true);
+                    setError('');
+                  }}
+                >
+                  🗑
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
