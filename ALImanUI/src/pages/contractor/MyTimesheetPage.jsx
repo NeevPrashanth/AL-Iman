@@ -34,6 +34,7 @@ export default function MyTimesheetPage({ session }) {
   const [baselineRows, setBaselineRows] = useState(normalizeRowsForCompare(initialRows));
   const [month, setMonth] = useState(getCurrentMonthValue);
   const [banner, setBanner] = useState('');
+  const [bannerType, setBannerType] = useState('');
   const [error, setError] = useState('');
   const [release, setRelease] = useState(null);
   const [loadingRelease, setLoadingRelease] = useState(false);
@@ -60,6 +61,7 @@ export default function MyTimesheetPage({ session }) {
     if (!month) {
       setRelease(null);
       setBanner('');
+      setBannerType('');
       setIsApprovedMonth(false);
       setRows(initialRows);
       setBaselineRows(normalizeRowsForCompare(initialRows));
@@ -69,6 +71,8 @@ export default function MyTimesheetPage({ session }) {
     const loadRelease = async () => {
       setLoadingRelease(true);
       setError('');
+      setBanner('');
+      setBannerType('');
       setIsApprovedMonth(false);
       try {
         const [allReleases, contractorTimesheets] = await Promise.all([
@@ -79,7 +83,9 @@ export default function MyTimesheetPage({ session }) {
         const monthKey = `${month}-01`;
         const match = allReleases.find(r => r.monthYear === monthKey);
         const existingTimesheet = (contractorTimesheets || []).find((t) => t.release?.monthYear === monthKey);
-        const approved = (existingTimesheet?.status || '').toUpperCase() === 'APPROVED';
+        const status = (existingTimesheet?.status || '').toUpperCase();
+        const approved = status === 'APPROVED';
+        const rejected = status === 'REJECTED';
         setIsApprovedMonth(approved);
 
         if (match) {
@@ -98,10 +104,22 @@ export default function MyTimesheetPage({ session }) {
           }
           setRows(loadedRows);
           setBaselineRows(normalizeRowsForCompare(loadedRows));
-          setBanner(approved ? 'This month is approved. Editing is disabled.' : 'Timesheet released - please submit before Monday.');
+          if (approved) {
+            setBanner('This month is approved. Editing is disabled.');
+            setBannerType('');
+          } else if (rejected) {
+            setBanner(existingTimesheet?.rejectionReason
+              ? `Timesheet rejected by line manager: ${existingTimesheet.rejectionReason}`
+              : 'Timesheet rejected by line manager. Please update and resubmit.');
+            setBannerType('error');
+          } else {
+            setBanner('Timesheet released - please submit before Monday.');
+            setBannerType('success');
+          }
         } else {
           setRelease(null);
           setBanner('');
+          setBannerType('');
           setError('No active release found for selected month.');
           setRows(initialRows);
           setBaselineRows(normalizeRowsForCompare(initialRows));
@@ -109,6 +127,7 @@ export default function MyTimesheetPage({ session }) {
       } catch (err) {
         setRelease(null);
         setBanner('');
+        setBannerType('');
         setError(err.response?.data?.message || 'No active release found for selected month.');
         setRows(initialRows);
         setBaselineRows(normalizeRowsForCompare(initialRows));
@@ -142,6 +161,7 @@ export default function MyTimesheetPage({ session }) {
         entries: rows,
       }, session.token);
       setBanner('Submitted for approval.');
+      setBannerType('success');
       setBaselineRows(normalizeRowsForCompare(rows));
     } catch (err) {
       setError(err.response?.data?.message || 'Could not submit timesheet.');
@@ -151,7 +171,7 @@ export default function MyTimesheetPage({ session }) {
   return (
     <div className="page-card timesheet-page">
       <h3>My Timesheet</h3>
-      {banner && <div className={`banner ${isApprovedMonth ? '' : 'success'} timesheet-banner`}>{banner}</div>}
+      {banner && <div className={`banner ${bannerType}`.trim() + ' timesheet-banner'}>{banner}</div>}
       {error && <div className="banner error timesheet-banner">{error}</div>}
       <div className="timesheet-month-row">
         <label className="timesheet-month-label">Month</label>

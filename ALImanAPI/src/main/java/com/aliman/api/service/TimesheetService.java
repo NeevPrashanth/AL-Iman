@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,12 +50,6 @@ public class TimesheetService {
             throw new ResponseStatusException(CONFLICT, "Timesheet is already approved and cannot be overwritten");
         }
 
-        // For re-submit before approval, remove existing managed children and flush deletes first.
-        if (timesheet.getEntries() != null && !timesheet.getEntries().isEmpty()) {
-            timesheet.getEntries().clear();
-            timesheetRepository.flush();
-        }
-
         // If the same date appears multiple times in request, keep the latest submitted row for that date.
         Map<java.time.LocalDate, TimesheetEntryRequest> latestByDate = new LinkedHashMap<>();
         for (TimesheetEntryRequest er : request.getEntries()) {
@@ -62,18 +57,28 @@ public class TimesheetService {
         }
 
         List<TimesheetEntry> entries = timesheet.getEntries() != null ? timesheet.getEntries() : new ArrayList<>();
+        Map<java.time.LocalDate, TimesheetEntry> existingByDate = new HashMap<>();
+        for (TimesheetEntry entry : entries) {
+            existingByDate.put(entry.getWorkDate(), entry);
+        }
+
         for (TimesheetEntryRequest er : latestByDate.values()) {
-            TimesheetEntry entry = new TimesheetEntry();
-            entry.setTimesheet(timesheet);
-            entry.setWorkDate(er.getWorkDate());
+            TimesheetEntry entry = existingByDate.get(er.getWorkDate());
+            if (entry == null) {
+                entry = new TimesheetEntry();
+                entry.setTimesheet(timesheet);
+                entry.setWorkDate(er.getWorkDate());
+                entries.add(entry);
+            }
             entry.setHoursWorked(er.getHoursWorked());
             entry.setEntryType(er.getEntryType());
             entry.setPreviousComment(entry.getComment());
             entry.setComment(er.getComment());
-            entries.add(entry);
+            entry.setUpdatedAt(OffsetDateTime.now());
         }
         timesheet.setEntries(entries);
         timesheet.setStatus(Timesheet.Status.SUBMITTED);
+        timesheet.setUpdatedAt(OffsetDateTime.now());
         return timesheetRepository.save(timesheet);
     }
 
